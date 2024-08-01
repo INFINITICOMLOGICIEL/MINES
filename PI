@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINES PAR INFINITI COM LOGICIEL</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #grid {
+            display: grid;
+
+            grid-template-columns: repeat(5, 50px);
+            grid-template-rows: repeat(5, 50px);
+            gap: 5px;
+        }
+        .cell {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .blue-square {
+            background-color: #00f;
+            color: #fff;
+        }
+        .diamond {
+            background-color: #fff;
+            color: #00f;
+        }
+
+        .spin {
+            animation: spin 1s linear infinite;
+            transform-origin: 50% 50%;
+        }
+        #refreshButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>MINES PAR INFINITI COM LOGICIEL</h1>
+    .
+    <div id="grid"></div>
+    <button id="refreshButton">prochaine combinaison</button>
+
+    <div id="countdown"></div>
+
+    <script>
+        const grid = document.getElementById('grid');
+        const refreshButton = document.getElementById('refreshButton');
+        const countdown = document.getElementById('countdown');
+
+        const initialPattern = [
+            [1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1],
+        ];
+
+        let canRefresh = true;
+
+        function getRandomInt(max) {
+
+            return Math.floor(Math.random() * max);
+        }
+
+        function shuffleDiamonds(pattern) {
+            let positions = [];
+            while (positions.length < 5) {
+                const randomIndex = getRandomInt(25);
+                if (pattern.flat()[randomIndex] === 1 && !positions.includes(randomIndex)) {
+                    positions.push(randomIndex);
+                }
+            }
+
+            let newPattern = pattern.map(row => row.slice());
+            positions.forEach(index => {
+                const row = Math.floor(index / 5);
+                const col = index % 5;
+                newPattern[row][col] = 0;
+
+            });
+
+            return newPattern;
+        }
+
+        function createGrid(pattern) {
+            grid.innerHTML = '';
+            pattern.forEach(row => {
+                row.forEach(cell => {
+                    const cellDiv = document.createElement('div');
+                    cellDiv.classList.add('cell');
+                    if (cell === 1) {
+                        cellDiv.classList.add('blue-square');
+                        cellDiv.textContent = '🟦';
+                    } else {
+                        cellDiv.classList.add('diamond');
+                        cellDiv.textContent = '💎';
+                        if (!canRefresh) {
+
+                            cellDiv.classList.add('spin');
+                        }
+                    }
+                    grid.appendChild(cellDiv);
+                });
+            });
+        }
+
+        function updateGrid() {
+            if (canRefresh) {
+                canRefresh = false;
+                refreshButton.disabled = true;
+                setTimeout(() => {
+                    canRefresh = true;
+                    refreshButton.disabled = false;
+                },30000 ); // 0,30 minutes in milliseconds
+
+                const newPattern = shuffleDiamonds(initialPattern);
+                createGrid(newPattern);
+
+            }
+        }
+
+        refreshButton.addEventListener('click', updateGrid);
+
+        function startCountdown() {
+            let timeLeft = 30;
+            const countdownInterval = setInterval(() => {
+                countdown.textContent =
+                timeLeft--;
+                if (timeLeft < 30) {
+                    clearInterval(countdownInterval);
+                    countdown.textContent = '';
+                }
+            }, 1000);
+        }
+
+
+        startCountdown();
+        updateGrid(); // Initial grid setup
+    </script>
+</body>
+</html>
